@@ -1,25 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+import BodyProposal from './components/BodyProposal'
+import Header from './components/Header'
+import { useState, useEffect } from 'react'
+import Loading from './components/Loading'
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	const [propolsalsJson, setPropolsalsJson] = useState(null)
+	const [search, setSearch] = useState([])
+
+	const handlesAddItem = e => {
+		if (!search.includes(e.target.textContent))
+			setSearch([...search, e.target.textContent])
+	}
+
+	const handleDelete = e => {
+		if (e.target.dataset.all) {
+			setSearch([])
+		} else {
+			setSearch(search.filter(tag => tag !== e.target.dataset.tag))
+		}
+	}
+
+	useEffect(() => {
+		fetch('./data/data.json', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
+			.then(res => res.json())
+			.then(res => setPropolsalsJson(res))
+	}, [])
+
+	return (
+		<>
+			<Header />
+			{propolsalsJson !== null ? (
+				<BodyProposal
+					propolsalsJson={propolsalsJson}
+					handlesAddItem={handlesAddItem}
+					search={search}
+					handleDelete={handleDelete}
+				/>
+			) : (
+				<Loading />
+			)}
+		</>
+	)
 }
 
-export default App;
+export default App
